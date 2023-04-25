@@ -22,24 +22,21 @@ int main()
     manager.segList.print_list();
     cout << endl;
     manager.free(15);
-    manager.malloc(14);
-    manager.malloc(11);
-    manager.malloc(2);
-    manager.free(0);
-    manager.free(14);
-    manager.free(25);
     manager.free(27);
-    manager.free(31);
-    manager.malloc(100);
+    manager.malloc(5);
+    manager.malloc(7);
+    manager.malloc(12);
+    manager.free(5);
+    manager.malloc(10);
+    manager.malloc(3);
+    manager.malloc(15);
+    manager.segList.print_list();
+    cout << endl;
     manager.free(0);
-    manager.malloc(33);
-    manager.malloc(33);
-    manager.malloc(33);
-    manager.malloc(1);
-    manager.free(66);
-    manager.free(99);
-    manager.free(0);
-    manager.free(33);
+    manager.free(12);
+    manager.free(24);
+    manager.free(34);
+    manager.free(37);
     manager.segList.print_list();
     cout << endl;
 
@@ -64,6 +61,6 @@ int main()
     manager.free(91);
     manager.segList.print_list();
     manager.free_list();
-    manager.free_cache();
+    manager.free_heap();
     return 0;
 }

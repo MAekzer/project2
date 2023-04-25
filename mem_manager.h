@@ -2,16 +2,14 @@
 
 #include <stack>
 #include <vector>
-#include <priority_queue>
+#include <queue>
 #include "dl.h"
 #include "memseg.h"
-#include "my_heap.h"
 
 struct MemoryManager {
     size_t total_mem; // Кол-во ячеек памяти
     dlList segList; // Список всех отрезков
-    std::stack<dlNode*> cache;
-    my_heap heap;
+    std::priority_queue<dlNode*, std::deque<dlNode*>, NodeCompare> heap;
     std::vector<dlNode*> place;
 
     MemoryManager(size_t total_mem) {
@@ -20,7 +18,7 @@ struct MemoryManager {
         memory_segment* init_seg = new memory_segment(0, total_mem);
 
         segList.push_front(init_seg);
-        cache.push(segList.head);
+        heap.push(segList.head);
     }
 
     memory_segment* malloc(size_t mem) {
@@ -28,12 +26,12 @@ struct MemoryManager {
             return nullptr;
         }
 
-        dlNode* tmp = cache.top();
+        dlNode* tmp = heap.top();
         while (tmp->segment->status == segment_status::IS_DELETED) {
             delete tmp->segment;
             delete tmp;
-            cache.pop();
-            tmp = cache.top();
+            heap.pop();
+            tmp = heap.top();
         }
 
         if (tmp->segment->length < mem) {
@@ -42,7 +40,7 @@ struct MemoryManager {
 
         std::pair<dlNode*, dlNode*> alloc_free = segList.split_segment(tmp, mem);
         if (alloc_free.second != nullptr) {
-            cache.push(alloc_free.second);
+            heap.push(alloc_free.second);
         }
         place[calculate_place(alloc_free.first)] = alloc_free.first;
         return alloc_free.first->segment;
@@ -55,18 +53,20 @@ struct MemoryManager {
         dlNode* node = place[i];
         place[i] = nullptr;
         dlNode* newNode = segList.join_segments(node);
-        cache.push(newNode);
+        heap.push(newNode);
         return newNode->segment;
     }
 
-    void free_cache() {
-        dlNode* tmp = cache.top();
-        while (!cache.empty()) {
-            if (tmp->segment->status == segment_status::IS_DELETED) {
-                delete tmp->segment;
-                delete tmp;
+    void free_heap() {
+        dlNode* node = heap.top();
+
+        while (!heap.empty()) {
+            if (node->segment->status == segment_status::IS_DELETED) {
+                delete node->segment;
+                delete node;
             }
-            cache.pop();
+            heap.pop();
+            node = heap.top();
         }
     }
 

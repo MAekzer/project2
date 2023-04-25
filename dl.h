@@ -129,7 +129,7 @@ struct dlList {
             } else {
                 tail = allocated;
             }
-            delete node;
+            node->segment->status = segment_status::IS_DELETED;
             return std::pair<dlNode*, dlNode*>(allocated, nullptr);
         }
 
@@ -150,8 +150,7 @@ struct dlList {
             tail = left;
         }
 
-        delete node->segment;
-        delete node;
+        node->segment->status = segment_status::IS_DELETED;
         return std::pair<dlNode*, dlNode*>(allocated, left);
     }
 
@@ -208,5 +207,12 @@ struct dlList {
 
         newNode->segment->length = sum;
         return newNode;
+    }
+};
+
+class NodeCompare {
+public:
+    bool operator() (dlNode* a, dlNode* b) {
+        return a->segment->length < b->segment->length;
     }
 };
